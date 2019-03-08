@@ -1,6 +1,6 @@
 // load environment variables
 const dotenv = require('dotenv');
-dotenv.load();
+dotenv.config();
 // import logger
 import logger from './logger';
 // import app
