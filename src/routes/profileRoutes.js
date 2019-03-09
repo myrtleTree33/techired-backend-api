@@ -16,12 +16,19 @@ routes.get('/:login', async (req, res, next) => {
 
 routes.get('/add/:login', async (req, res, next) => {
   const { login } = req.params;
+
+  // depth can only be between 0 to 3
+  let depth = parseInt(req.query.depth || 1, 10);
+  depth = Math.min(depth, 3);
+  depth = Math.max(depth, 0);
+
   if (!login) {
     return next('Specify a user!');
   }
   try {
     await new Profile({
       login,
+      depth,
       lastScrapedAt: new Date(0)
     }).save();
     res.json({ message: 'Saved user successfully!' });

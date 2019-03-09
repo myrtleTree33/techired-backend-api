@@ -12,6 +12,7 @@ import baseRoutes from './routes/baseRoutes';
 import userRoutes from './routes/userRoutes';
 import profileRoutes from './routes/profileRoutes';
 import repoRoutes from './routes/repoRoutes';
+import supersearchRoutes from './routes/supersearchRoutes';
 
 // connect to Mongo DB
 logger.info(`Connecting to ${process.env.MONGO_URI}..`);
@@ -42,6 +43,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/', baseRoutes);
 app.use('/profiles', profileRoutes);
 app.use('/repos', repoRoutes);
+app.use('/supersearch', supersearchRoutes);
 // app.use('/user', userRoutes);
 
 // Catch 404 and forward to error handler
