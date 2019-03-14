@@ -26,18 +26,15 @@ routes.get('/add/:login', async (req, res, next) => {
     return next('Specify a user!');
   }
   try {
-    await new Profile({
-      login,
+    await Profile.findOneAndUpdate({
+      login: login.toLowerCase(),
       depth,
       lastScrapedAt: new Date(0)
-    }).save();
+    });
     res.json({ message: 'Saved user successfully!' });
   } catch (e) {
     return next({ message: 'Error saving user.' });
   }
-
-  // const profile = await Profile.findOne({ login });
-  // res.json(profile);
 });
 
 /**
