@@ -12,6 +12,7 @@ import baseRoutes from './routes/baseRoutes';
 import userRoutes from './routes/userRoutes';
 import profileRoutes from './routes/profileRoutes';
 import repoRoutes from './routes/repoRoutes';
+import repoQueueRoutes from './routes/repoQueueRoutes';
 import supersearchRoutes from './routes/supersearchRoutes';
 
 // connect to Mongo DB
@@ -43,6 +44,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/', baseRoutes);
 app.use('/profiles', profileRoutes);
 app.use('/repos', repoRoutes);
+app.use('/reposqueue', repoQueueRoutes);
 app.use('/supersearch', supersearchRoutes);
 // app.use('/user', userRoutes);
 
