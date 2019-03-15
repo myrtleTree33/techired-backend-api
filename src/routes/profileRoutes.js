@@ -29,7 +29,6 @@ routes.get('/add/:login', async (req, res, next) => {
     await Profile.findOneAndUpdate(
       { login: login.toLowerCase },
       {
-        login: login.toLowerCase(),
         depth,
         lastScrapedAt: new Date(0)
       },
