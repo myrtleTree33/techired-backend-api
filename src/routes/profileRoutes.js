@@ -32,6 +32,10 @@ routes.get('/add/:login', async (req, res, next) => {
         login: login.toLowerCase(),
         depth,
         lastScrapedAt: new Date(0)
+      },
+      {
+        upsert: true,
+        new: true
       }
     );
     res.json({ message: 'Saved user successfully!' });
