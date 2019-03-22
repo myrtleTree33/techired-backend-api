@@ -115,6 +115,16 @@ const profileSchema = new Schema({
   ownedReposLangs: {
     type: Object,
     default: {}
+  },
+  starredReposLangsEarliest: {
+    type: Map,
+    of: Date,
+    default: {}
+  },
+  ownedReposLangsEarliest: {
+    type: Map,
+    of: Date,
+    default: {}
   }
 });
 
