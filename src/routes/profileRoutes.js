@@ -19,7 +19,7 @@ routes.get('/add/:login', async (req, res, next) => {
 
   // depth can only be between 0 to 3
   let depth = parseInt(req.query.depth || 1, 10);
-  depth = Math.min(depth, 999);
+  depth = Math.min(depth, 99);
   depth = Math.max(depth, 0);
 
   if (!login) {
