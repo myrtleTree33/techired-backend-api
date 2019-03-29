@@ -7,6 +7,8 @@ import Profile from '../models/Profile';
 import Repo from '../models/Repo';
 import { findNearestCitiesMultiple } from '../services/geolocationService';
 
+const { PER_PAGE, QUERY_DISTANCE_MAX } = process.env;
+
 const routes = Router();
 
 function addLocationFilter(location) {
@@ -89,7 +91,7 @@ routes.post('/nearestcities', async (req, res, next) => {
  * Meta search
  */
 routes.post('/', async (req, res, next) => {
-  const PER_PAGE = parseInt(process.env.PER_PAGE, 10);
+  const PER_PAGE2 = parseInt(PER_PAGE, 10);
   const {
     page,
     location,
@@ -101,14 +103,15 @@ routes.post('/', async (req, res, next) => {
   console.log(page, location, distance, cities);
   const pageInt = parseInt(page || 1, 10);
   const pagination = {
-    limit: PER_PAGE, // max 20
-    skip: PER_PAGE * (pageInt - 1)
+    limit: PER_PAGE2, // max 20
+    skip: PER_PAGE2 * (pageInt - 1)
   };
 
   const _cities = cities.map(c => c.toLowerCase());
   let citiesResolved = _cities;
   if (distance) {
-    const _distance = parseInt(distance);
+    const QUERY_DISTANCE_MAX2 = parseInt(QUERY_DISTANCE_MAX, 10);
+    const _distance = Math.min(parseInt(distance, 10), QUERY_DISTANCE_MAX2);
     const nearestCities = await findNearestCitiesMultiple(_cities, _distance);
     citiesResolved = [..._cities, ...nearestCities];
   }
