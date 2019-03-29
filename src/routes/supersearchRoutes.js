@@ -74,8 +74,6 @@ function addEarliestLangs(ownedReposLangs) {
     };
   });
 
-  console.log(query);
-
   return {
     $or: query
   };
@@ -115,8 +113,6 @@ routes.post('/', async (req, res, next) => {
     citiesResolved = [..._cities, ...nearestCities];
   }
   citiesResolved = _.uniq(citiesResolved);
-
-  console.log(`finding cities = ${citiesResolved}`);
 
   const profiles = await Profile.find({
     $and: [
