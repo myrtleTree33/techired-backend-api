@@ -28,6 +28,7 @@
     "eslint"
   ],
   "dependencies": {
+    "@okta/jwt-verifier": "0.0.14",
     "app-root-path": "^2.1.0",
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-class-properties": "^6.24.1",

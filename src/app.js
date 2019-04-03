@@ -15,6 +15,9 @@ import repoRoutes from './routes/repoRoutes';
 import repoQueueRoutes from './routes/repoQueueRoutes';
 import queryQueueRoutes from './routes/queryQueueRoutes';
 import supersearchRoutes from './routes/supersearchRoutes';
+import { initOkta } from './utils/initOkta';
+
+initOkta();
 
 // connect to Mongo DB
 logger.info(`Connecting to ${process.env.MONGO_URI}..`);

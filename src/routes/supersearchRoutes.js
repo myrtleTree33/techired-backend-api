@@ -7,7 +7,7 @@ import Profile from '../models/Profile';
 import Repo from '../models/Repo';
 import { findNearestCitiesMultiple } from '../services/geolocationService';
 
-const { PER_PAGE, QUERY_DISTANCE_MAX } = process.env;
+const { PER_PAGE, MAX_PAGES, QUERY_DISTANCE_MAX } = process.env;
 
 const routes = Router();
 
@@ -81,6 +81,61 @@ function addEarliestLangs(ownedReposLangs) {
   };
 }
 
+function addNumFollowers(numFollowers = []) {
+  const query = {};
+  const numFollowersArr = Array.isArray(numFollowers) ? numFollowers : [numFollowers, null];
+
+  if (!numFollowersArr || numFollowersArr.length === 0) {
+    return {};
+  }
+
+  // ensure min and max bounds always present
+  if (numFollowersArr.length === 1) {
+    numFollowersArr.push(null);
+  }
+
+  const [min, max] = numFollowersArr;
+
+  if (min && !isNaN(min)) {
+    query['$gte'] = min;
+  }
+
+  if (max && !isNaN(max)) {
+    query['$lte'] = max;
+  }
+
+  return {
+    numFollowers: query
+  };
+}
+
+function addNumFollowing(numFollowing = []) {
+  const query = {};
+  const numFollowingArr = Array.isArray(numFollowing) ? numFollowing : [numFollowing, null];
+
+  if (!numFollowingArr || numFollowingArr.length === 0) {
+    return {};
+  }
+
+  // ensure min and max bounds always present
+  if (numFollowingArr.length === 1) {
+    numFollowingArr.push(null);
+  }
+
+  const [min, max] = numFollowingArr;
+  if (min) {
+    query['$gte'] = min;
+  }
+
+  if (max) {
+    query['$lte'] = max;
+  }
+
+  return {
+    numFollowing: query
+  };
+}
+
 routes.post('/nearestcities', async (req, res, next) => {
   const { cities = [], distance } = req.body;
   const results = await findNearestCitiesMultiple(cities, distance);
@@ -98,7 +153,9 @@ routes.post('/', async (req, res, next) => {
     cities = [],
     countries = [],
     ownedReposLangsMonths = {},
-    distance
+    distance,
+    numFollowers = [],
+    numFollowing = []
   } = req.body;
   console.log(page, location, distance, cities);
   const pageInt = parseInt(page || 1, 10);
@@ -122,7 +179,9 @@ routes.post('/', async (req, res, next) => {
       addLocationFilter(location),
       addCities(citiesResolved),
       addCountries(countries),
-      addEarliestLangs(ownedReposLangsMonths)
+      addEarliestLangs(ownedReposLangsMonths),
+      addNumFollowers(numFollowers),
+      addNumFollowing(numFollowing)
     ]
   })
     .sort({ _id: -1 })
