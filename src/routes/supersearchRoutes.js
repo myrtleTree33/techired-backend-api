@@ -59,20 +59,62 @@ function addCountries(countries) {
   };
 }
 
-function addEarliestLangs(ownedReposLangs) {
+function processTuple(val) {
+  if (!val) {
+    return [0, 0];
+  }
+
+  if (!Array.isArray(val)) {
+    try {
+      const min = parseInt(val, 10);
+      return [min, null];
+    } catch (err) {
+      return [0, 0];
+    }
+  }
+
+  if (val.length >= 2) {
+    try {
+      return [parseInt(val[0], 10), parseInt(val[1], 10)];
+    } catch (err) {
+      return [0, 0];
+    }
+  }
+
+  try {
+    return [parseInt(val[0], 10), null];
+  } catch (err) {
+    return [0, 0];
+  }
+}
+
+function genMonthsQuery(tuple) {
+  const query = {};
+  if (tuple[0]) {
+    query['$lte'] = moment()
+      .subtract(tuple[0], 'months')
+      .toDate();
+  }
+
+  if (tuple[1]) {
+    query['$gte'] = moment()
+      .subtract(tuple[1], 'months')
+      .toDate();
+  }
+
+  return query;
+}
+
+function addLangExperience(ownedReposLangs) {
   if (Object.keys(ownedReposLangs).length === 0) {
     return {};
   }
 
   const keys = Object.keys(ownedReposLangs);
   const query = keys.map(k => {
-    const numMonths = ownedReposLangs[k];
+    const tuple = processTuple(ownedReposLangs[k]);
     return {
-      [`ownedReposLangsEarliest.${k}`]: {
-        $lte: moment()
-          .subtract(numMonths, 'months')
-          .toDate()
-      }
+      [`ownedReposLangsEarliest.${k}`]: genMonthsQuery(tuple)
     };
   });
 
@@ -179,7 +221,7 @@ routes.post('/', async (req, res, next) => {
       addLocationFilter(location),
       addCities(citiesResolved),
       addCountries(countries),
-      addEarliestLangs(ownedReposLangsMonths),
+      addLangExperience(ownedReposLangsMonths),
       addNumFollowers(numFollowers),
       addNumFollowing(numFollowing)
     ]
