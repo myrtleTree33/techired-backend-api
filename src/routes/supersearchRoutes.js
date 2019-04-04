@@ -6,6 +6,7 @@ import { ensureAuth } from '../utils/socialAuth';
 import Profile from '../models/Profile';
 import Repo from '../models/Repo';
 import { findNearestCitiesMultiple } from '../services/geolocationService';
+import logger from '../logger';
 
 const { PER_PAGE, MAX_PAGES, QUERY_DISTANCE_MAX } = process.env;
 
@@ -188,50 +189,55 @@ routes.post('/nearestcities', async (req, res, next) => {
  * Meta search
  */
 routes.post('/', async (req, res, next) => {
-  const PER_PAGE2 = parseInt(PER_PAGE, 10);
-  const {
-    page,
-    location,
-    cities = [],
-    countries = [],
-    ownedReposLangsMonths = {},
-    distance,
-    numFollowers = [],
-    numFollowing = []
-  } = req.body;
-  console.log(page, location, distance, cities);
-  const pageInt = parseInt(page || 1, 10);
-  const pagination = {
-    limit: PER_PAGE2, // max 20
-    skip: PER_PAGE2 * (pageInt - 1)
-  };
+  try {
+    const PER_PAGE2 = parseInt(PER_PAGE, 10);
+    const {
+      page,
+      location,
+      cities = [],
+      countries = [],
+      ownedReposLangsMonths = {},
+      distance,
+      numFollowers = [],
+      numFollowing = []
+    } = req.body;
+    console.log(page, location, distance, cities);
+    const pageInt = parseInt(page || 1, 10);
+    const pagination = {
+      limit: PER_PAGE2, // max 20
+      skip: PER_PAGE2 * (pageInt - 1)
+    };
 
-  const _cities = cities.map(c => c.toLowerCase());
-  let citiesResolved = _cities;
-  if (distance) {
-    const QUERY_DISTANCE_MAX2 = parseInt(QUERY_DISTANCE_MAX, 10);
-    const _distance = Math.min(parseInt(distance, 10), QUERY_DISTANCE_MAX2);
-    const nearestCities = await findNearestCitiesMultiple(_cities, _distance);
-    citiesResolved = [..._cities, ...nearestCities];
+    const _cities = cities.map(c => c.toLowerCase());
+    let citiesResolved = _cities;
+    if (distance) {
+      const QUERY_DISTANCE_MAX2 = parseInt(QUERY_DISTANCE_MAX, 10);
+      const _distance = Math.min(parseInt(distance, 10), QUERY_DISTANCE_MAX2);
+      const nearestCities = await findNearestCitiesMultiple(_cities, _distance);
+      citiesResolved = [..._cities, ...nearestCities];
+    }
+    citiesResolved = _.uniq(citiesResolved);
+
+    const profiles = await Profile.find({
+      $and: [
+        addLocationFilter(location),
+        addCities(citiesResolved),
+        addCountries(countries),
+        addLangExperience(ownedReposLangsMonths),
+        addNumFollowers(numFollowers),
+        addNumFollowing(numFollowing)
+      ]
+    })
+      .sort({ _id: -1 })
+      .limit(pagination.limit)
+      .skip(pagination.skip);
+
+    console.log(`${profiles.length} profiles found.`);
+    res.json(profiles);
+  } catch (err) {
+    logger.error(err);
+    res.json([]);
   }
-  citiesResolved = _.uniq(citiesResolved);
-
-  const profiles = await Profile.find({
-    $and: [
-      addLocationFilter(location),
-      addCities(citiesResolved),
-      addCountries(countries),
-      addLangExperience(ownedReposLangsMonths),
-      addNumFollowers(numFollowers),
-      addNumFollowing(numFollowing)
-    ]
-  })
-    .sort({ _id: -1 })
-    .limit(pagination.limit)
-    .skip(pagination.skip);
-
-  console.log(`${profiles.length} profiles found.`);
-  res.json(profiles);
 });
 
 export default routes;
