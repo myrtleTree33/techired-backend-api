@@ -17,7 +17,11 @@ export async function verifyToken(req, res, next) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
       req.token = bearerToken;
-      await oktaJwtVerifier.verifyAccessToken(bearerToken);
+      const jwt = await oktaJwtVerifier.verifyAccessToken(bearerToken);
+      if (jwt) {
+        // store jwt claims object in req.claims
+        req.claims = jwt;
+      }
       next();
     } else {
       res.sendStatus(403);

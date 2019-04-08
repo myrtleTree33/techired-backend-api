@@ -7,6 +7,7 @@ import Profile from '../models/Profile';
 import Repo from '../models/Repo';
 import { findNearestCitiesMultiple } from '../services/geolocationService';
 import logger from '../logger';
+import { verifyToken } from '../utils/initOkta';
 
 const { PER_PAGE, MAX_PAGES, QUERY_DISTANCE_MAX } = process.env;
 
@@ -188,7 +189,7 @@ routes.post('/nearestcities', async (req, res, next) => {
 /**
  * Meta search
  */
-routes.post('/', async (req, res, next) => {
+routes.post('/', verifyToken, async (req, res, next) => {
   try {
     const PER_PAGE2 = parseInt(PER_PAGE, 10);
     const {
