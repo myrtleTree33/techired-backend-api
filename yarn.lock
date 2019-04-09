@@ -1425,6 +1425,12 @@ character-parser@^2.1.1:
   dependencies:
     is-regex "^1.0.3"
 
+chargebee@^2.4.9:
+  version "2.4.9"
+  resolved "https://registry.yarnpkg.com/chargebee/-/chargebee-2.4.9.tgz#7bf5a830888e1efcb9415f7dec80c3172fe69095"
+  dependencies:
+    q ">=1.0.1"
+
 chokidar@^1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-1.6.1.tgz#2f4447ab5e96e50fb3d789fd90d4c72e0e4c70c2"
@@ -5200,6 +5206,10 @@ punycode@^1.4.1:
 punycode@^2.1.0:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
+
+q@>=1.0.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
 
 qs@6.5.2, qs@^6.5.1, qs@~6.5.2:
   version "6.5.2"
