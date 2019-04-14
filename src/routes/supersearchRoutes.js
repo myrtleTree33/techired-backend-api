@@ -13,6 +13,20 @@ const { PER_PAGE, MAX_PAGES, QUERY_DISTANCE_MAX } = process.env;
 
 const routes = Router();
 
+function addCompanyFilter(company) {
+  if (!company) {
+    return {};
+  }
+  return { company: new RegExp(company, 'i') };
+}
+
+function addBioFilter(bio) {
+  if (!bio) {
+    return {};
+  }
+  return { bio: new RegExp(bio, 'i') };
+}
+
 function addLocationFilter(location) {
   if (!location) {
     return {};
@@ -189,13 +203,16 @@ routes.post('/nearestcities', async (req, res, next) => {
 /**
  * Meta search
  */
-routes.post('/', verifyToken, async (req, res, next) => {
+// routes.post('/', verifyToken, async (req, res, next) => {
+routes.post('/', async (req, res, next) => {
   try {
     const PER_PAGE2 = parseInt(PER_PAGE, 10);
     const {
       page,
       location,
       cities = [],
+      company,
+      bio,
       countries = [],
       ownedReposLangsMonths = {},
       distance,
@@ -220,14 +237,16 @@ routes.post('/', verifyToken, async (req, res, next) => {
     citiesResolved = _.uniq(citiesResolved);
 
     const profiles = await Profile.find({
-      $and: [
+      $and: _.uniq([
         addLocationFilter(location),
         addCities(citiesResolved),
         addCountries(countries),
         addLangExperience(ownedReposLangsMonths),
         addNumFollowers(numFollowers),
-        addNumFollowing(numFollowing)
-      ]
+        addNumFollowing(numFollowing),
+        addCompanyFilter(company),
+        addBioFilter(bio)
+      ])
     })
       .sort({ _id: -1 })
       .limit(pagination.limit)
