@@ -2,14 +2,11 @@ import { Router } from 'express';
 import _ from 'lodash';
 import moment from 'moment';
 
-import { ensureAuth } from '../utils/socialAuth';
 import Profile from '../models/Profile';
-import Repo from '../models/Repo';
 import { findNearestCitiesMultiple } from '../services/geolocationService';
 import logger from '../logger';
-import { verifyToken } from '../utils/initOkta';
 
-const { PER_PAGE, MAX_PAGES, QUERY_DISTANCE_MAX } = process.env;
+const { PER_PAGE, QUERY_DISTANCE_MAX } = process.env;
 
 const routes = Router();
 

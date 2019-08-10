@@ -6,19 +6,13 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 
 import logger from './logger';
-// import { initPassport } from './utils/socialAuth';
 
 import baseRoutes from './routes/baseRoutes';
-import userRoutes from './routes/userRoutes';
-import subscriptionRoutes from './routes/subscriptionRoutes';
 import profileRoutes from './routes/profileRoutes';
 import repoRoutes from './routes/repoRoutes';
 import repoQueueRoutes from './routes/repoQueueRoutes';
 import queryQueueRoutes from './routes/queryQueueRoutes';
 import supersearchRoutes from './routes/supersearchRoutes';
-import { initOkta } from './utils/initOkta';
-
-initOkta();
 
 // connect to Mongo DB
 logger.info(`Connecting to ${process.env.MONGO_URI}..`);
@@ -52,7 +46,7 @@ app.use('/repos', repoRoutes);
 app.use('/reposqueue', repoQueueRoutes);
 app.use('/queriesqueue', queryQueueRoutes);
 app.use('/supersearch', supersearchRoutes);
-app.use('/subscription', subscriptionRoutes);
+// app.use('/subscription', subscriptionRoutes);
 // app.use('/user', userRoutes);
 
 // Catch 404 and forward to error handler
