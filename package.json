@@ -30,6 +30,7 @@
   "dependencies": {
     "@okta/jwt-verifier": "0.0.14",
     "app-root-path": "^2.1.0",
+    "authifyjs": "^1.0.0",
     "babel-cli": "^6.26.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
