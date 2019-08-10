@@ -136,4 +136,15 @@ profileSchema.set('toJSON', {
 // This will remove `_id` and `__v`
 profileSchema.plugin(mongooseHidden);
 
+profileSchema.index({
+  name: 1,
+  login: 1,
+  company: 1,
+  location: 1,
+  countries: 1,
+  cities: 1,
+  countryManual: 1,
+  stateManual: 1
+});
+
 export default mongoose.model('Profile', profileSchema);

@@ -33,17 +33,18 @@ function addLocationFilter(location) {
   }
 
   return {
-    $or: [
-      {
-        location: { $regex: `${location}`, $options: 'i' }
-      },
-      {
-        countries: { $elemMatch: { $regex: `${location}`, $options: 'i' } }
-      },
-      {
-        cities: { $elemMatch: { $regex: `${location}`, $options: 'i' } }
-      }
-    ]
+    $text: { $search: `${location}` }
+    // $or: [
+    //   {
+    //     location: { $regex: `${location}`, $options: 'i' }
+    //   },
+    //   {
+    //     countries: { $elemMatch: { $regex: `${location}`, $options: 'i' } }
+    //   },
+    //   {
+    //     cities: { $elemMatch: { $regex: `${location}`, $options: 'i' } }
+    //   }
+    // ]
   };
 }
 
@@ -239,8 +240,8 @@ routes.post('/', async (req, res, next) => {
     const profiles = await Profile.find({
       $and: _.uniq([
         addLocationFilter(location),
-        addCities(citiesResolved),
-        addCountries(countries),
+        // addCities(citiesResolved),
+        // addCountries(countries),
         addLangExperience(ownedReposLangsMonths),
         addNumFollowers(numFollowers),
         addNumFollowing(numFollowing),
