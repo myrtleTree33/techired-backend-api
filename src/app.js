@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import helmet from 'helmet';
 import Authify from 'authifyjs';
 
 import logger from './logger';
@@ -30,7 +31,8 @@ mongoose.connect(process.env.MONGO_URI);
 logger.info(`Connected to ${process.env.MONGO_URI}`);
 
 const app = express();
-app.disable('x-powered-by');
+
+app.use(helmet());
 
 app.use(
   morgan('combined', {
