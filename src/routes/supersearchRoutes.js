@@ -2,6 +2,8 @@ import { Router } from 'express';
 import _ from 'lodash';
 import moment from 'moment';
 
+import Authify from 'authifyjs';
+
 import Profile from '../models/Profile';
 import { findNearestCitiesMultiple } from '../services/geolocationService';
 import logger from '../logger';
@@ -202,7 +204,7 @@ routes.post('/nearestcities', async (req, res, next) => {
  * Meta search
  */
 // routes.post('/', verifyToken, async (req, res, next) => {
-routes.post('/', async (req, res, next) => {
+routes.post('/', Authify.ensureAuth, async (req, res, next) => {
   try {
     const PER_PAGE2 = parseInt(PER_PAGE, 10);
     const {

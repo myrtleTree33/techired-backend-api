@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import Authify from 'authifyjs';
 
 import logger from './logger';
 
@@ -13,6 +14,15 @@ import repoRoutes from './routes/repoRoutes';
 import repoQueueRoutes from './routes/repoQueueRoutes';
 import queryQueueRoutes from './routes/queryQueueRoutes';
 import supersearchRoutes from './routes/supersearchRoutes';
+
+const {
+  AUTH_JWT_SECRET,
+  AUTH_JWT_ISSUER,
+  AUTH_JWT_AUDIENCE,
+  AUTH_JWT_EXPIRY,
+  FACEBOOK_CLIENT_ID,
+  FACEBOOK_CLIENT_SECRET
+} = process.env;
 
 // connect to Mongo DB
 logger.info(`Connecting to ${process.env.MONGO_URI}..`);
@@ -36,8 +46,26 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '../public')));
 
+// Enable social auth
 // Uncomment this to enable social authentication
-// initPassport(app);
+Authify.init({
+  mongoUri: process.env.MONGO_URI,
+  app,
+  opts: {
+    useClassic: true,
+    useFacebook: true,
+    facebook: {
+      clientId: FACEBOOK_CLIENT_ID,
+      clientSecret: FACEBOOK_CLIENT_SECRET
+    }
+  },
+  jwt: {
+    secret: AUTH_JWT_SECRET,
+    issuer: AUTH_JWT_ISSUER,
+    audience: AUTH_JWT_AUDIENCE,
+    expiry: AUTH_JWT_EXPIRY
+  }
+});
 
 // Routes
 app.use('/', baseRoutes);
