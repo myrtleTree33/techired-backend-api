@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import chargebee from 'chargebee';
 import { ensureAuth } from '../utils/socialAuth';
-import { rejects } from 'assert';
 import logger from '../logger';
 import { verifyToken } from '../utils/initOkta';
 

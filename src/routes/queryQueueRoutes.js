@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { ensureAuth } from '../utils/socialAuth';
 import QueryQueue from '../models/QueryQueue';
 
 const routes = Router();

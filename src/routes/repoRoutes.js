@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { ensureAuth } from '../utils/socialAuth';
 import Repo from '../models/Repo';
+import Authify from 'authifyjs';
 
 const routes = Router();
 
-routes.get('/:repoId', async (req, res, next) => {
+routes.get('/:repoId', Authify.ensureAuth, async (req, res, next) => {
   const { repoId } = req.params;
   if (!repoId) {
     return next('Specify a repository ID!');

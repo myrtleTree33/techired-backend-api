@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { ensureAuth } from '../utils/socialAuth';
+import Authify from 'authifyjs';
+
 import Profile from '../models/Profile';
 import Repo from '../models/Repo';
 
 const routes = Router();
 
-routes.get('/:login', async (req, res, next) => {
+routes.get('/:login', Authify.ensureAuth, async (req, res, next) => {
   const { login } = req.params;
   if (!login) {
     return next('Specify a user!');
@@ -48,7 +49,7 @@ routes.get('/add/:login', async (req, res, next) => {
 /**
  * Retrieves all repos belonging to a certain user.
  */
-routes.get('/:login/repos', async (req, res, next) => {
+routes.get('/:login/repos', Authify.ensureAuth, async (req, res, next) => {
   const PER_PAGE = parseInt(process.env.PER_PAGE);
   const { login } = req.params;
   const page = parseInt(req.query.page || 1, 10);

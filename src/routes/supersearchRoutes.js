@@ -223,7 +223,7 @@ routes.post('/', Authify.ensureAuth, async (req, res, next) => {
       numFollowers = [],
       numFollowing = []
     } = req.body;
-    console.log(page, location, distance, cities);
+    logger.info(page, location, distance, cities);
     const pageInt = parseInt(page || 1, 10);
     const pagination = {
       limit: PER_PAGE2, // max 20
@@ -257,7 +257,7 @@ routes.post('/', Authify.ensureAuth, async (req, res, next) => {
       .limit(pagination.limit)
       .skip(pagination.skip);
 
-    console.log(`${profiles.length} profiles found.`);
+    logger.info(`${profiles.length} profiles found.`);
     res.json(profiles);
   } catch (err) {
     logger.error(err);
