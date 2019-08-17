@@ -12,21 +12,25 @@ const { PER_PAGE, QUERY_DISTANCE_MAX } = process.env;
 
 const routes = Router();
 
-function addCompanyFilter(company) {
+const addCompanyFilter = company => {
   if (!company) {
     return {};
   }
   return { company: new RegExp(company, 'i') };
-}
+};
 
-function addBioFilter(bio) {
+const addBioFilter = bio => {
   if (!bio) {
     return {};
   }
   return { bio: new RegExp(bio, 'i') };
-}
+};
 
-function addLocationFilter(location) {
+const addRemoveUnscrapedEntries = () => ({
+  createdAt: { $exists: true }
+});
+
+const addLocationFilter = location => {
   if (!location) {
     return {};
   }
@@ -45,9 +49,9 @@ function addLocationFilter(location) {
     //   }
     // ]
   };
-}
+};
 
-function addCities(cities) {
+const addCities = cities => {
   if (cities.length === 0) {
     return {};
   }
@@ -59,9 +63,9 @@ function addCities(cities) {
       $in: cities2
     }
   };
-}
+};
 
-function addCountries(countries) {
+const addCountries = countries => {
   if (countries.length === 0) {
     return {};
   }
@@ -73,9 +77,9 @@ function addCountries(countries) {
       $in: countries2
     }
   };
-}
+};
 
-function processTuple(val) {
+const processTuple = val => {
   if (!val) {
     return [0, 0];
   }
@@ -102,9 +106,9 @@ function processTuple(val) {
   } catch (err) {
     return [0, 0];
   }
-}
+};
 
-function genMonthsQuery(tuple) {
+const genMonthsQuery = tuple => {
   const query = {};
   if (tuple[0]) {
     query['$lte'] = moment()
@@ -119,9 +123,9 @@ function genMonthsQuery(tuple) {
   }
 
   return query;
-}
+};
 
-function addLangExperience(ownedReposLangs) {
+const addLangExperience = ownedReposLangs => {
   if (Object.keys(ownedReposLangs).length === 0) {
     return {};
   }
@@ -137,9 +141,9 @@ function addLangExperience(ownedReposLangs) {
   return {
     $or: query
   };
-}
+};
 
-function addNumFollowers(numFollowers = []) {
+const addNumFollowers = (numFollowers = []) => {
   const query = {};
   const numFollowersArr = Array.isArray(numFollowers) ? numFollowers : [numFollowers, null];
 
@@ -165,9 +169,9 @@ function addNumFollowers(numFollowers = []) {
   return {
     numFollowers: query
   };
-}
+};
 
-function addNumFollowing(numFollowing = []) {
+const addNumFollowing = (numFollowing = []) => {
   const query = {};
   const numFollowingArr = Array.isArray(numFollowing) ? numFollowing : [numFollowing, null];
 
@@ -192,7 +196,7 @@ function addNumFollowing(numFollowing = []) {
   return {
     numFollowing: query
   };
-}
+};
 
 routes.post('/nearestcities', async (req, res, next) => {
   const { cities = [], distance } = req.body;
@@ -239,6 +243,7 @@ routes.post('/', Authify.ensureAuth, async (req, res, next) => {
     const profiles = await Profile.find({
       $and: _.uniq([
         addLocationFilter(location),
+        addRemoveUnscrapedEntries(),
         // addCities(citiesResolved),
         // addCountries(countries),
         addLangExperience(ownedReposLangsMonths),
