@@ -15,6 +15,7 @@ import repoRoutes from './routes/repoRoutes';
 import repoQueueRoutes from './routes/repoQueueRoutes';
 import queryQueueRoutes from './routes/queryQueueRoutes';
 import supersearchRoutes from './routes/supersearchRoutes';
+import findLangsByCountry from './services/statsService';
 
 const {
   AUTH_JWT_SECRET,
@@ -93,5 +94,9 @@ app.use((err, req, res, next) => {
   const { code, message } = err;
   res.status(err.httpCode || 500).json({ code, message });
 });
+
+// (async () => {
+//   await findLangsByCountry({ country: 'Indonesia' });
+// })();
 
 export default app;
