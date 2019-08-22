@@ -96,7 +96,8 @@ app.use((err, req, res, next) => {
 });
 
 // (async () => {
-//   await findLangsByCountry({ country: 'Indonesia' });
+// await findLangsByCountry({ country: 'Indonesia' });
+// await findLangsByCountry({});
 // })();
 
 export default app;

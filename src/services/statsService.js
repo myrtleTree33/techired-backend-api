@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Profile from '../models/Profile';
 
 const queryPage = async ({ page = 1, country }) => {
@@ -38,7 +39,10 @@ const findLangsByCountry = async ({ country } = {}) => {
       }
     });
 
+    const langsArr = _.keys(langs);
     console.log(langs);
+    console.dir(langsArr, { maxArrayLength: null });
+    console.dir(langsArr.length);
     console.log(`Processed page ${page}`);
     page++;
   }
