@@ -3,25 +3,36 @@ import Authify from 'authifyjs';
 
 import Profile from '../models/Profile';
 import Repo from '../models/Repo';
+import { log } from 'util';
+
+const PER_PAGE = parseInt(process.env.PER_PAGE, 10);
 
 const routes = Router();
 
-routes.get('/:login', Authify.ensureAuth, async (req, res, next) => {
+const compose = (...fns) => args => fns.reduceRight((x, f) => f(x), args);
+const minBound = min => n => Math.min(n, min);
+const maxBound = max => n => Math.max(n, max);
+
+const bounds = (min, max, n) =>
+  compose(
+    minBound(min),
+    maxBound(max)
+  )(n);
+
+const viewProfile = async (req, res, next) => {
   const { login } = req.params;
   if (!login) {
     return next('Specify a user!');
   }
   const profile = await Profile.findOne({ login });
-  res.json(profile);
-});
+  return res.json(profile);
+};
 
-routes.get('/add/:login', async (req, res, next) => {
+const addProfile = async (req, res, next) => {
   const { login } = req.params;
 
-  // depth can only be between 0 to 3
   let depth = parseInt(req.query.depth || 1, 10);
-  depth = Math.min(depth, 99);
-  depth = Math.max(depth, 0);
+  depth = bounds(0, 99, depth);
 
   if (!login) {
     return next('Specify a user!');
@@ -29,46 +40,44 @@ routes.get('/add/:login', async (req, res, next) => {
   try {
     await Profile.findOneAndUpdate(
       { login: login.toLowerCase() },
-      {
-        login: login.toLowerCase(),
-        depth,
-        lastScrapedAt: new Date(0)
-      },
-      {
-        upsert: true,
-        new: true
-      }
+      { login: login.toLowerCase(), depth, lastScrapedAt: new Date(0) },
+      { upsert: true, new: true }
     );
-    res.json({ message: 'Saved user successfully!' });
+    return res.json({ message: 'Saved user successfully!' });
   } catch (e) {
-    console.log(e);
+    log.error(e.message);
     return next({ message: 'Error saving user.' });
   }
-});
+};
 
 /**
  * Retrieves all repos belonging to a certain user.
  */
-routes.get('/:login/repos', Authify.ensureAuth, async (req, res, next) => {
-  const PER_PAGE = parseInt(process.env.PER_PAGE);
-  const { login } = req.params;
+const viewProfileRepos = async (req, res, next) => {
   const page = parseInt(req.query.page || 1, 10);
-  const pagination = {
-    limit: PER_PAGE, // max 20
-    skip: PER_PAGE * (page - 1)
-  };
+  const { login } = req.params;
 
   if (!login) {
     return next('Specify a user!');
   }
+
+  const pagination = {
+    limit: PER_PAGE,
+    skip: PER_PAGE * (page - 1)
+  };
+
   const profile = await Profile.findOne({ login });
   const { ownedRepoIds } = profile;
-  const repos = await Repo.find({
-    repoId: { $in: ownedRepoIds }
-  })
+
+  const repos = await Repo.find({ repoId: { $in: ownedRepoIds } })
     .limit(pagination.limit)
     .skip(pagination.skip);
-  res.json(repos);
-});
+
+  return res.json(repos);
+};
+
+routes.get('/:login', Authify.ensureAuth, viewProfile);
+routes.get('/add/:login', addProfile);
+routes.get('/:login/repos', Authify.ensureAuth, viewProfileRepos);
 
 export default routes;

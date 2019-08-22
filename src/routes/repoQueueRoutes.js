@@ -5,7 +5,7 @@ import Authify from 'authifyjs';
 
 const routes = Router();
 
-routes.post('/add', Authify.ensureAuth, async (req, res, next) => {
+const addRepoToQueue = async (req, res, next) => {
   const { fullName } = req.body;
   if (!fullName) {
     return next('Specify a repository full name!');
@@ -13,10 +13,13 @@ routes.post('/add', Authify.ensureAuth, async (req, res, next) => {
 
   await RepoQueue.findOneAndUpdate({ fullName }, { fullName }, { new: true, upsert: true });
 
-  res.json({
+  return res.json({
     fullName,
     message: 'Added to queue!'
   });
-});
+};
+
+// Routes
+routes.post('/add', addRepoToQueue);
 
 export default routes;
