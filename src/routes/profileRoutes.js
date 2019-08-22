@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import Authify from 'authifyjs';
 
+import logger from '../logger';
+
 import Profile from '../models/Profile';
 import Repo from '../models/Repo';
-import { log } from 'util';
 
 const PER_PAGE = parseInt(process.env.PER_PAGE, 10);
 
@@ -15,8 +16,8 @@ const maxBound = max => n => Math.max(n, max);
 
 const bounds = (min, max, n) =>
   compose(
-    minBound(min),
-    maxBound(max)
+    minBound(max),
+    maxBound(min)
   )(n);
 
 const viewProfile = async (req, res, next) => {
@@ -45,7 +46,7 @@ const addProfile = async (req, res, next) => {
     );
     return res.json({ message: 'Saved user successfully!' });
   } catch (e) {
-    log.error(e.message);
+    logger.error(e.message);
     return next({ message: 'Error saving user.' });
   }
 };
@@ -77,7 +78,8 @@ const viewProfileRepos = async (req, res, next) => {
 };
 
 routes.get('/:login', Authify.ensureAuth, viewProfile);
-routes.get('/add/:login', addProfile);
 routes.get('/:login/repos', Authify.ensureAuth, viewProfileRepos);
+
+routes.get('/add/:login', addProfile);
 
 export default routes;

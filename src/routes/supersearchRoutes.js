@@ -9,47 +9,18 @@ import { findNearestCitiesMultiple } from '../services/geolocationService';
 import logger from '../logger';
 
 const { PER_PAGE, QUERY_DISTANCE_MAX } = process.env;
+const PER_PAGE2 = parseInt(PER_PAGE, 10);
+const QUERY_DISTANCE_MAX2 = parseInt(QUERY_DISTANCE_MAX, 10);
 
 const routes = Router();
 
-const addCompanyFilter = company => {
-  if (!company) {
-    return {};
-  }
-  return { company: new RegExp(company, 'i') };
-};
+const addCompanyFilter = company => (!company ? {} : { company: new RegExp(company, 'i') });
 
-const addBioFilter = bio => {
-  if (!bio) {
-    return {};
-  }
-  return { bio: new RegExp(bio, 'i') };
-};
+const addBioFilter = bio => (!bio ? {} : { bio: new RegExp(bio, 'i') });
 
-const addRemoveUnscrapedEntries = () => ({
-  createdAt: { $exists: true }
-});
+const addRemoveUnscrapedEntries = () => ({ createdAt: { $exists: true } });
 
-const addLocationFilter = location => {
-  if (!location) {
-    return {};
-  }
-
-  return {
-    $text: { $search: `${location}` }
-    // $or: [
-    //   {
-    //     location: { $regex: `${location}`, $options: 'i' }
-    //   },
-    //   {
-    //     countries: { $elemMatch: { $regex: `${location}`, $options: 'i' } }
-    //   },
-    //   {
-    //     cities: { $elemMatch: { $regex: `${location}`, $options: 'i' } }
-    //   }
-    // ]
-  };
-};
+const addLocationFilter = location => (!location ? {} : { $text: { $search: `${location}` } });
 
 const addCities = cities => {
   if (cities.length === 0) {
@@ -57,12 +28,7 @@ const addCities = cities => {
   }
 
   const cities2 = cities.map(c => c.trim().toLowerCase());
-
-  return {
-    cities: {
-      $in: cities2
-    }
-  };
+  return { cities: { $in: cities2 } };
 };
 
 const addCountries = countries => {
@@ -71,12 +37,7 @@ const addCountries = countries => {
   }
 
   const countries2 = countries.map(c => c.trim().toLowerCase());
-
-  return {
-    countries: {
-      $in: countries2
-    }
-  };
+  return { countries: { $in: countries2 } };
 };
 
 const processTuple = val => {
@@ -198,19 +159,14 @@ const addNumFollowing = (numFollowing = []) => {
   };
 };
 
-routes.post('/nearestcities', async (req, res, next) => {
+const findNearestCities = async (req, res) => {
   const { cities = [], distance } = req.body;
   const results = await findNearestCitiesMultiple(cities, distance);
   res.json(results);
-});
+};
 
-/**
- * Meta search
- */
-// routes.post('/', verifyToken, async (req, res, next) => {
-routes.post('/', Authify.ensureAuth, async (req, res, next) => {
+const superSearch = async (req, res, next) => {
   try {
-    const PER_PAGE2 = parseInt(PER_PAGE, 10);
     const {
       page,
       location,
@@ -223,21 +179,20 @@ routes.post('/', Authify.ensureAuth, async (req, res, next) => {
       numFollowers = [],
       numFollowing = []
     } = req.body;
+
     logger.info(page, location, distance, cities);
+
     const pageInt = parseInt(page || 1, 10);
-    const pagination = {
-      limit: PER_PAGE2, // max 20
-      skip: PER_PAGE2 * (pageInt - 1)
-    };
+    const pagination = { limit: PER_PAGE2, skip: PER_PAGE2 * (pageInt - 1) };
 
     const _cities = cities.map(c => c.toLowerCase());
     let citiesResolved = _cities;
     if (distance) {
-      const QUERY_DISTANCE_MAX2 = parseInt(QUERY_DISTANCE_MAX, 10);
       const _distance = Math.min(parseInt(distance, 10), QUERY_DISTANCE_MAX2);
       const nearestCities = await findNearestCitiesMultiple(_cities, _distance);
       citiesResolved = [..._cities, ...nearestCities];
     }
+
     citiesResolved = _.uniq(citiesResolved);
 
     const profiles = await Profile.find({
@@ -263,6 +218,9 @@ routes.post('/', Authify.ensureAuth, async (req, res, next) => {
     logger.error(err);
     res.json([]);
   }
-});
+};
+
+routes.post('/nearestcities', findNearestCities);
+routes.post('/', Authify.ensureAuth, superSearch);
 
 export default routes;
